@@ -343,8 +343,7 @@ h1 { font-size: 14mm; line-height: 1.04; margin: 0; letter-spacing: -.02em; font
 .fleche { margin-top: 1.5mm; font-size: 6mm; line-height: 1; color: var(--bouton) }
 .qr { background: #fff; border: 1.4mm solid var(--cadre); border-radius: 7mm; padding: 6mm; margin-top: 1.5mm; width: 96mm; height: 96mm; display: flex }
 .qr svg { width: 100%; height: 100% }
-.consigne { margin-top: 3.5mm; font-size: 4.8mm; font-weight: 700; text-align: center }
-.regle { margin-top: 2mm; font-size: 4.4mm; font-weight: 600; text-align: center; opacity: .92 }
+.regle { margin-top: 4mm; font-size: 4.4mm; font-weight: 600; text-align: center; opacity: .92 }
 .officiel { margin-top: auto; font-size: 4mm; font-weight: 700; text-align: center; opacity: .85 }
 .pied { margin-top: 1.5mm; text-align: center; font-size: 3.2mm; opacity: .7 }
 """
@@ -365,7 +364,7 @@ def feuille_html(parc, num, lieu, url, c, domaine, pid=None):
     if num == 1:
         kicker = f"Parc {nom_parc}"
         titre = f"{html.escape(c['mascotte'])} a disparu !"
-        sous = f"Aide-nous à la retrouver : mène l'enquête dans tout le parc et gagne {html.escape(c['recompense'])}."
+        sous = f"Aide-nous à le retrouver : mène l'enquête dans tout le parc et gagne {html.escape(c['recompense'])}."
         bouton = "Scanne pour commencer l'enquête"
         regle = "Un adulte + un enfant · 6 postes à trouver · environ 15 minutes"
         pied = f"Parc {de_parc(parc['nom'])} · poste 1/6 · {lieu} (affiche de départ)"
@@ -398,7 +397,6 @@ def feuille_html(parc, num, lieu, url, c, domaine, pid=None):
     <div class="bouton">{html.escape(bouton)}</div>
     <div class="fleche">&#9660;</div>
     <div class="qr">{svg}</div>
-    <div class="consigne">Ouvre l'appareil photo de ton téléphone et vise le carré.</div>
     <div class="regle">{regle}</div>
     <div class="officiel">{officiel}</div>
     <div class="pied">{html.escape(pied)} · ne pas découper cette ligne</div></section>"""
