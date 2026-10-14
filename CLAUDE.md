@@ -19,7 +19,7 @@ les changements qui casseraient les QR. `--forcer` ne sert qu'à une réimpressi
 
 ## Où modifier quoi
 - Histoire, énigmes, indices, témoins (qui parle, sur quel trait), phrases des témoignages (`temoignages`), messages, mots du jour, suspects : `contenu.json`
-  (poste 1 = accueil, poste 6 = accueil aussi ; chaque `mene_a` doit être le lieu de l'étape suivante).
+  (poste 1 = Accueil, poste 6 = Bowling ; la récompense se retire à l'accueil ; chaque `mene_a` doit être le lieu de l'étape suivante).
 - Design et comportement : `template.html` (CSS + JS vanille, une seule page).
 - Génération : `build.py` (valide le contenu, produit `site/index.html`, les PDF de QR, la fiche équipe).
 - `site/index.html` est GÉNÉRÉ mais COMMITÉ : c'est ce que Vercel sert (Root Directory = `site`, pas de commande de build ; en-têtes dans `site/vercel.json`).

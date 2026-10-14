@@ -301,52 +301,104 @@ def ecrire_site(data, out):
 
 
 # ---------------------------------------------------------------- feuilles QR
+# Charte de chaque parc pour les feuilles (couleurs reprises du jeu : voir THEMES dans template.html)
+FEUILLES_THEMES = {
+    "agen":         {"haut": "#27465f", "bas": "#0d1522", "titre": "#FFFFFF", "kicker": "#F5A623",
+                     "bouton": "#F5A623", "bouton_txt": "#161d2a", "cadre": "#F5A623", "texte": "#DCE6F1", "pos": "50% 20%"},
+    "chateauroux":  {"haut": "#0e0e14", "bas": "#4a1216", "titre": "#F0E9CD", "kicker": "#FF5A60",
+                     "bouton": "#E11F26", "bouton_txt": "#FFFFFF", "cadre": "#E11F26", "texte": "#E8DFC0", "pos": "50% 55%"},
+    "laval":        {"haut": "#cd3a50", "bas": "#b02f45", "titre": "#FFF4EE", "kicker": "#530b2d",
+                     "bouton": "#FBF1E2", "bouton_txt": "#530b2d", "cadre": "#FBF1E2", "texte": "#FFF4EE",
+                     "rayures": True, "pos": "50% 58%"},
+    "montdemarsan": {"haut": "#3f1d68", "bas": "#1f0f38", "titre": "#FBF2DA", "kicker": "#F7931E",
+                     "bouton": "#E0145A", "bouton_txt": "#FFFFFF", "cadre": "#F7931E", "texte": "#E6DAF5",
+                     "fanions": True, "pos": "50% 12%"},
+}
+FEUILLE_PAR_DEFAUT = {"haut": "#2A1A45", "bas": "#2A1A45", "titre": "#FFFFFF", "kicker": "#FFC93C",
+                      "bouton": "#FFC93C", "bouton_txt": "#1E1233", "cadre": "#FFC93C", "texte": "#E7E0F5", "pos": "50% 40%"}
+FANIONS_SVG = ('<svg viewBox="0 0 400 48" preserveAspectRatio="none">'
+               '<path d="M0 6Q200 18 400 6" fill="none" stroke="#F3E9C2" stroke-width="2"/>'
+               + "".join(f'<path d="M{4 + i * 39.5} 8h32v24l-16 12-16-12Z" fill="{["#E0145A", "#1AA0A5", "#F7931E", "#F3E9C2"][i % 4]}"/>'
+                         for i in range(10)) + '</svg>')
+
 CSS_FEUILLES = """
 @page { size: A4; margin: 0 }
 * { box-sizing: border-box }
 html, body { margin: 0; padding: 0 }
 body { font-family: "Avenir Next Rounded","Arial Rounded MT Bold","Trebuchet MS",Arial,sans-serif; color: #1E1233 }
-.page { width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; display: flex; flex-direction: column; align-items: center; page-break-after: always; position: relative; overflow: hidden }
+.page { width: 210mm; height: 297mm; padding: 13mm 15mm 10mm; display: flex; flex-direction: column; align-items: center; page-break-after: always; position: relative; overflow: hidden; color: var(--texte) }
 .page:last-child { page-break-after: auto }
-.cadre { position: absolute; inset: 7mm; border: 2.2mm solid #FFC93C; border-radius: 9mm }
-.haut { text-align: center; margin-top: 4mm; z-index: 1 }
-.kicker { font-size: 6.2mm; font-weight: 700; color: #F26B1D; margin: 0 0 2mm }
-h1 { font-size: 15mm; line-height: 1.02; margin: 0; letter-spacing: -.02em; font-weight: 800; color: #2A1A45 }
-.sous { font-size: 6.6mm; margin: 4mm 8mm 0; line-height: 1.3; color: #2A1A45 }
-.qr { background: #fff; border: 1.2mm solid #2A1A45; border-radius: 7mm; padding: 8mm; margin-top: 9mm; width: 124mm; height: 124mm; z-index: 1; display: flex }
+.fond { position: absolute; inset: 0; background: linear-gradient(180deg, var(--haut), var(--bas) 75%) }
+.rayures .fond { background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 17mm, transparent 17mm 34mm), linear-gradient(180deg, var(--haut), var(--bas) 75%) }
+.cadre { position: absolute; inset: 6mm; border: 1.6mm solid var(--cadre); border-radius: 9mm; opacity: .9 }
+.fanions { position: absolute; left: 0; right: 0; top: 0; height: 15mm; z-index: 1 }
+.fanions svg { width: 100%; height: 100% }
+.page > * { z-index: 1 }
+.logo { height: 18mm; width: auto; margin-top: 3mm }
+.kicker { font-size: 6mm; font-weight: 800; color: var(--kicker); margin: 4mm 0 1.5mm; text-transform: uppercase; letter-spacing: .06em; text-align: center }
+h1 { font-size: 14mm; line-height: 1.04; margin: 0; letter-spacing: -.02em; font-weight: 800; color: var(--titre); text-align: center }
+.sous { font-size: 5.8mm; margin: 3mm 6mm 0; line-height: 1.3; text-align: center }
+.scene { width: 120mm; height: 43mm; object-fit: cover; object-position: var(--pos); border-radius: 6mm; margin-top: 5mm; border: .9mm solid rgba(255,255,255,.35) }
+.bouton { margin-top: 5mm; background: var(--bouton); color: var(--bouton_txt); border-radius: 12mm; padding: 3.4mm 10mm; font-size: 7.4mm; font-weight: 800; text-align: center; box-shadow: 0 1.4mm 0 rgba(0,0,0,.25) }
+.fleche { margin-top: 1.5mm; font-size: 6mm; line-height: 1; color: var(--bouton) }
+.qr { background: #fff; border: 1.4mm solid var(--cadre); border-radius: 7mm; padding: 6mm; margin-top: 1.5mm; width: 96mm; height: 96mm; display: flex }
 .qr svg { width: 100%; height: 100% }
-.scan { margin-top: 6mm; font-size: 7mm; font-weight: 800; color: #2A1A45; text-align: center; z-index: 1 }
-.scan small { display: block; font-size: 4.6mm; font-weight: 600; color: #5E5278; margin-top: 1.5mm }
-.regle { margin-top: 6mm; display: flex; gap: 5mm; z-index: 1 }
-.regle div { background: #F6F1FF; border-radius: 5mm; padding: 3mm 5mm; font-size: 4.6mm; font-weight: 700; text-align: center }
-.officiel { margin-top: 8mm; font-size: 4.4mm; font-weight: 700; color: #5E5278; text-align: center; z-index: 1 }
-.pied { position: absolute; left: 0; right: 0; bottom: 11mm; text-align: center; font-size: 3.4mm; color: #7A6F91; z-index: 1 }
+.consigne { margin-top: 3.5mm; font-size: 4.8mm; font-weight: 700; text-align: center }
+.regle { margin-top: 2mm; font-size: 4.4mm; font-weight: 600; text-align: center; opacity: .92 }
+.officiel { margin-top: auto; font-size: 4mm; font-weight: 700; text-align: center; opacity: .85 }
+.pied { margin-top: 1.5mm; text-align: center; font-size: 3.2mm; opacity: .7 }
 """
 
 
-def feuille_html(parc, num, lieu, url, c, domaine):
+def _img64(chemin):
+    import base64
+    return "data:image/webp;base64," + base64.b64encode(Path(chemin).read_bytes()).decode("ascii")
+
+
+def feuille_html(parc, num, lieu, url, c, domaine, pid=None):
     import segno
     qr = segno.make(url, error="q", micro=False)
     svg = qr.svg_inline(border=0, dark="#1E1233", light="#FFFFFF", omitsize=True, scale=1)
+    th = FEUILLES_THEMES.get(pid, FEUILLE_PAR_DEFAUT)
+    nom_parc = html.escape(de_parc(parc['nom']))
+    regle = ""
     if num == 1:
-        haut = f"""<p class="kicker">Parc {html.escape(de_parc(parc['nom']))}</p>
-        <h1>{html.escape(c['mascotte'])} a disparu !</h1>
-        <p class="sous">Aide-nous à la retrouver : mène l'enquête dans tout le parc et gagne {html.escape(c['recompense'])}.</p>"""
-        scan = "Scanne ce QR code pour commencer l'enquête<small>Ouvre l'appareil photo de ton téléphone et vise le carré.</small>"
-        regle = '<div>Un adulte + un enfant</div><div>6 postes à trouver</div><div>Environ 15 minutes</div>'
+        kicker = f"Parc {nom_parc}"
+        titre = f"{html.escape(c['mascotte'])} a disparu !"
+        sous = f"Aide-nous à la retrouver : mène l'enquête dans tout le parc et gagne {html.escape(c['recompense'])}."
+        bouton = "Scanne pour commencer l'enquête"
+        regle = "Un adulte + un enfant · 6 postes à trouver · environ 15 minutes"
         pied = f"Parc {de_parc(parc['nom'])} · poste 1/6 · {lieu} (affiche de départ)"
-    else:
-        haut = f"""<p class="kicker">Poste {num} sur 6</p>
-        <h1>Tu as trouvé<br>le bon endroit !</h1>
-        <p class="sous">Un témoin attend de te parler. Scanne le QR code pour l'écouter.</p>"""
-        scan = "Scanne ce QR code pour continuer l'enquête<small>Ouvre l'appareil photo de ton téléphone et vise le carré.</small>"
-        regle = ""
+    elif num < 6:
+        kicker = f"Poste {num} sur 6"
+        titre = "Tu as trouvé<br>le bon endroit !"
+        sous = "Un témoin attend de te parler. Scanne le QR code pour l'écouter."
+        bouton = "Scanne pour continuer l'enquête"
         pied = f"Parc {de_parc(parc['nom'])} · poste {num}/6 · emplacement : {lieu}"
+    else:
+        kicker = "Dernier poste"
+        titre = "Il est temps de<br>désigner le coupable !"
+        sous = "Tu as interrogé tous les témoins. Scanne le QR code pour relire leurs indices et choisir."
+        bouton = "Scanne pour désigner le coupable"
+        pied = f"Parc {de_parc(parc['nom'])} · poste 6/6 · {lieu}"
+    images = ROOT / "site" / "img"
+    logo = f'<img class="logo" src="{_img64(images / "logo-blanc.webp")}" alt="Monky">' if (images / "logo-blanc.webp").exists() else ""
+    scene_f = images / f"{pid}-scene.webp"
+    scene = f'<img class="scene" src="{_img64(scene_f)}" alt="">' if scene_f.exists() else ""
+    fanions = f'<div class="fanions">{FANIONS_SVG}</div>' if th.get("fanions") else ""
+    style = "".join(f"--{k}:{v};" for k, v in th.items() if isinstance(v, str))
+    classe = "page rayures" if th.get("rayures") else "page"
     officiel = f"Jeu officiel des parcs {html.escape(c['marque'])} · {html.escape(domaine)}"
-    return f"""<section class="page"><div class="cadre"></div>
-    <div class="haut">{haut}</div>
+    return f"""<section class="{classe}" style="{style}"><div class="fond"></div><div class="cadre"></div>{fanions}
+    {logo}
+    <p class="kicker">{kicker}</p>
+    <h1>{titre}</h1>
+    <p class="sous">{sous}</p>
+    {scene}
+    <div class="bouton">{html.escape(bouton)}</div>
+    <div class="fleche">&#9660;</div>
     <div class="qr">{svg}</div>
-    <div class="scan">{scan}</div>
+    <div class="consigne">Ouvre l'appareil photo de ton téléphone et vise le carré.</div>
     <div class="regle">{regle}</div>
     <div class="officiel">{officiel}</div>
     <div class="pied">{html.escape(pied)} · ne pas découper cette ligne</div></section>"""
@@ -360,7 +412,7 @@ def ecrire_feuilles(c, tk, base, out, rendre_pdf):
     for pid, p in c["parcs"].items():
         pages = []
         for num, (lieu, tok) in enumerate(zip(lieux_du_parc(p), tk["parcs"][pid]), start=1):
-            pages.append(feuille_html(p, num, lieu, f"{base}?e={tok}", c, domaine))
+            pages.append(feuille_html(p, num, lieu, f"{base}?e={tok}", c, domaine, pid))
         doc = (f"<!doctype html><html lang='fr'><head><meta charset='utf-8'><title>QR {p['nom']}</title>"
                f"<style>{CSS_FEUILLES}</style></head><body>{''.join(pages)}</body></html>")
         h = dossier / f"QR-{pid}.html"
