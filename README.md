@@ -5,8 +5,9 @@ Voir `CLAUDE.md` pour le fonctionnement détaillé et les règles.
 
 ## Mise en ligne (GitHub → Vercel)
 1. `git init`, premier commit, dépôt GitHub **privé**, `git push`.
-2. Vercel → *Add New Project* → importer le dépôt. Réglages : *Framework Preset* = Other,
-   *Build Command* = vide, *Output Directory* = `site`. (`vercel.json` les fournit déjà ; à vérifier au premier déploiement.)
+2. Vercel → *Add New Project* → importer le dépôt. Réglages : *Root Directory* = `site` (important : sinon Vercel
+   voit les fichiers Python à la racine et tente un déploiement Python), *Framework Preset* = Other,
+   *Build Command* et *Output Directory* = vides. Les en-têtes (noindex) sont dans `site/vercel.json`.
 3. Ouvrir `https://<projet>.vercel.app/?e=<code>&test=1` : le jeu doit s'afficher.
 
 **Attention — licence Vercel.** Le plan Hobby (gratuit) est réservé à un usage non commercial. Un jeu qui

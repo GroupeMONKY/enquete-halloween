@@ -22,7 +22,7 @@ les changements qui casseraient les QR. `--forcer` ne sert qu'à une réimpressi
   (poste 1 = accueil, poste 6 = accueil aussi ; chaque `mene_a` doit être le lieu de l'étape suivante).
 - Design et comportement : `template.html` (CSS + JS vanille, une seule page).
 - Génération : `build.py` (valide le contenu, produit `site/index.html`, les PDF de QR, la fiche équipe).
-- `site/index.html` est GÉNÉRÉ mais COMMITÉ : c'est ce que Vercel sert (pas de commande de build).
+- `site/index.html` est GÉNÉRÉ mais COMMITÉ : c'est ce que Vercel sert (Root Directory = `site`, pas de commande de build ; en-têtes dans `site/vercel.json`).
 
 ## Commandes
 - `python3 build.py --site-only` : régénère `site/index.html` (à faire après toute modif de contenu/template).
