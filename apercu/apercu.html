@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aperçu des postes</title>
+<style>
+  :root{ --fond:#1b1530; --carte:#2a2145; --texte:#f3eefc; --doux:#b8aedb; --jaune:#f7c948; --bord:#443a6b; }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ background:var(--fond); color:var(--texte); font:15px/1.4 system-ui,sans-serif; display:flex; flex-direction:column; }
+  header{ padding:10px 14px; background:var(--carte); border-bottom:1px solid var(--bord); display:flex; flex-direction:column; gap:8px; }
+  .ligne{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  select,button,input{ font:inherit; color:var(--texte); background:var(--fond); border:1px solid var(--bord); border-radius:8px; padding:6px 10px; }
+  button{ cursor:pointer; }
+  button:hover:not(:disabled){ border-color:var(--jaune); }
+  button:disabled{ opacity:.35; cursor:default; }
+  .bananes{ display:flex; gap:4px; flex:1; justify-content:center; }
+  .banane{ padding:2px 4px; border:0; background:none; display:flex; flex-direction:column; align-items:center; gap:0; color:var(--doux); font-size:11px; }
+  .banane svg{ width:34px; height:20px; }
+  .banane path{ fill:none; stroke:var(--doux); stroke-width:5; stroke-linecap:round; opacity:.55; }
+  .banane.actif{ color:var(--jaune); }
+  .banane.actif path{ stroke:var(--jaune); opacity:1; }
+  .info{ color:var(--doux); font-size:13px; }
+  main{ flex:1; min-height:0; display:flex; justify-content:center; padding:12px; }
+  iframe{ width:100%; max-width:390px; height:100%; border:2px solid var(--bord); border-radius:18px; background:#fff; }
+  .date{ width:140px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="ligne">
+    <select id="parc" aria-label="Parc"></select>
+    <button id="prec" type="button">← Précédent</button>
+    <div class="bananes" id="bananes"></div>
+    <button id="suiv" type="button">Suivant →</button>
+  </div>
+  <div class="ligne">
+    <span class="info" id="info"></span>
+    <label class="info" style="margin-left:auto">Jour simulé <input id="date" class="date" type="date"></label>
+  </div>
+</header>
+<main><iframe id="jeu" title="Jeu"></iframe></main>
+<script>
+(function(){
+  var TOUS = {}, parc = "", poste = 1;
+  var sel = document.getElementById("parc"), ban = document.getElementById("bananes");
+  var prec = document.getElementById("prec"), suiv = document.getElementById("suiv");
+  var info = document.getElementById("info"), jeu = document.getElementById("jeu");
+  var date = document.getElementById("date");
+  var NOMS = { agen:"Agen", laval:"Laval", chateauroux:"Châteauroux", montdemarsan:"Mont-de-Marsan" };
+  var BANANE = '<svg viewBox="0 0 60 36"><path d="M6 8 C 14 32, 46 32, 54 8"/></svg>';
+
+  function afficher(){
+    var jeton = TOUS[parc][poste - 1];
+    if(poste === 6){
+      // le jeu mémorise la victoire ; on l'efface pour revoir le choix du coupable
+      try{ localStorage.removeItem("enquete-gagne-" + parc); }catch(e){}
+    }
+    var url = "/jeu?test=1&e=" + jeton + (date.value ? "&date=" + date.value : "");
+    jeu.src = url;
+    prec.disabled = poste === 1;
+    suiv.disabled = poste === 6;
+    Array.prototype.forEach.call(ban.children, function(b, i){ b.classList.toggle("actif", i === poste - 1); });
+    info.textContent = (NOMS[parc] || parc) + " · poste " + poste + "/6" + (poste === 6 ? " · choix du coupable" : "");
+    try{ history.replaceState(null, "", "#" + parc + "/" + poste); }catch(e){}
+  }
+  function aller(n){ poste = Math.min(6, Math.max(1, n)); afficher(); }
+
+  sel.onchange = function(){ parc = sel.value; poste = 1; afficher(); };
+  prec.onclick = function(){ aller(poste - 1); };
+  suiv.onclick = function(){ aller(poste + 1); };
+  date.onchange = afficher;
+  document.addEventListener("keydown", function(e){
+    if(e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+    if(e.key === "ArrowLeft") aller(poste - 1);
+    if(e.key === "ArrowRight") aller(poste + 1);
+  });
+
+  fetch("/tokens.json").then(function(r){ return r.json(); }).then(function(d){
+    TOUS = d.parcs;
+    Object.keys(TOUS).forEach(function(k){
+      var o = document.createElement("option"); o.value = k; o.textContent = NOMS[k] || k; sel.appendChild(o);
+    });
+    for(var i = 1; i <= 6; i++){
+      (function(n){
+        var b = document.createElement("button"); b.type = "button"; b.className = "banane";
+        b.setAttribute("aria-label", "Poste " + n);
+        b.innerHTML = BANANE + "<span>" + n + "</span>";
+        b.onclick = function(){ aller(n); };
+        ban.appendChild(b);
+      })(i);
+    }
+    var h = location.hash.replace("#", "").split("/");
+    parc = TOUS[h[0]] ? h[0] : Object.keys(TOUS)[0];
+    sel.value = parc;
+    poste = Math.min(6, Math.max(1, parseInt(h[1], 10) || 1));
+    afficher();
+  });
+})();
+</script>
+</body>
+</html>

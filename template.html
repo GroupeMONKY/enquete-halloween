@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2A1A45">
+<title>L'enquête de la mascotte</title>
+<style>
+:root{
+  --nuit:#2A1A45;
+  --nuit-2:#3B2763;
+  --papier:#F6F1FF;
+  --banane:#FFC93C;
+  --banane-fonce:#E6A800;
+  --citrouille:#F26B1D;
+  --vert:#2FAE62;
+  --encre:#1E1233;
+  --gris:#5E5278;
+  --rouge:#B83247;
+  --doux:#CFC4EA;
+  --fond-haut:#2A1A45;
+  --fond-bas:#2A1A45;
+  --halo:transparent;
+  --fond-image:linear-gradient(transparent,transparent);
+  --decor-couleur:#0b1220;
+  --coin-carte:#F6F1FF;
+  --police:"Avenir Next Rounded","Arial Rounded MT Bold",ui-rounded,"Trebuchet MS",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--fond-bas);background-image:var(--fond-image),linear-gradient(180deg,var(--fond-haut),var(--fond-bas) 70%);background-attachment:fixed;background-repeat:repeat,no-repeat;color:var(--papier);font:18px/1.45 var(--police);min-height:100vh;min-height:100dvh;position:relative}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 82% 6%,var(--halo),transparent 46%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+.wrap{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px max(40px,env(safe-area-inset-bottom))}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(30px,9vw,42px);line-height:1.04;font-weight:800;letter-spacing:-.02em}
+h2{font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
+:focus-visible{outline:3px solid var(--banane);outline-offset:3px;border-radius:8px}
+
+/* En-tête : lieu + poste, puis progression sur toute la largeur */
+.entete{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.entete .ligne{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.entete .parc{font-weight:700;color:var(--accent-entete,var(--banane));font-size:17px;min-width:0}
+.entete .poste{font-size:15px;color:var(--doux);margin:0;white-space:nowrap}
+.progression{display:flex;gap:6px;width:100%}
+.progression > span{flex:1 1 0;min-width:0;display:block}
+.progression svg{width:100%;height:auto;display:block}
+
+/* Cartes */
+.carte{background:var(--papier);color:var(--encre);border-radius:22px;padding:20px;margin-bottom:16px}
+.carte p+p{margin-top:10px}
+.carte h2{margin-bottom:6px}
+.carte .petit{font-size:15px;color:var(--gris)}
+
+/* Avis de recherche (poster de départ) */
+.avis{background:var(--papier);color:var(--encre);border-radius:6px;padding:22px 20px 20px;margin:0 0 18px;transform:rotate(-1.2deg);box-shadow:0 10px 0 -4px rgba(0,0,0,.25);text-align:center;position:relative}
+.avis::before,.avis::after{content:"";position:absolute;top:10px;width:12px;height:12px;border-radius:50%;background:var(--citrouille)}
+.avis::before{left:12px}.avis::after{right:12px}
+.avis h1{color:var(--encre);margin-bottom:6px}
+.avis .sous{font-weight:700;color:var(--citrouille);font-size:17px}
+.avis .portrait{position:relative;width:170px;margin:10px auto 6px}
+.avis .portrait img{width:100%;height:auto;display:block;filter:grayscale(.85) contrast(.9);opacity:.85}
+.avis .tampon{position:absolute;right:-14px;bottom:10px;transform:rotate(-12deg);border:3px solid var(--rouge);color:var(--rouge);background:rgba(255,255,255,.85);border-radius:8px;padding:2px 10px;font-weight:800;font-size:22px;letter-spacing:.04em;text-transform:uppercase}
+
+/* Témoignage = page de carnet */
+.temoignage{background:#FFFBE8;color:var(--encre);border-radius:6px 22px 22px 6px;padding:18px 20px 18px 28px;margin-bottom:16px;position:relative;border-left:6px solid var(--citrouille)}
+.temoignage .qui{display:flex;align-items:center;gap:10px;font-weight:800;margin-bottom:6px}
+.temoignage .qui span.ico{font-size:30px;line-height:1}
+.temoignage .cite{font-size:20px;line-height:1.35;margin:0}
+
+/* Énigme = ticket jaune */
+.enigme{background:var(--banane);color:var(--encre);border-radius:22px;padding:20px;margin-bottom:16px}
+.enigme h2{margin-bottom:8px}
+.enigme .texte{font-size:20px;font-weight:700;line-height:1.35}
+.enigme .consigne{margin-top:12px;font-size:16px;font-weight:600}
+.indice{margin-top:12px;background:rgba(255,255,255,.55);border-radius:14px;padding:12px 14px;font-weight:700}
+
+/* Boutons */
+.bouton{appearance:none;border:0;cursor:pointer;width:100%;min-height:56px;padding:14px 18px;border-radius:16px;font:inherit;font-weight:800;font-size:18px;background:var(--encre);color:var(--papier);margin-top:14px}
+.bouton.clair{background:rgba(255,255,255,.7);color:var(--encre)}
+.bouton.ok{background:var(--banane);color:var(--encre)}
+.bouton[disabled]{opacity:.45;cursor:not-allowed}
+.bouton:active:not([disabled]){transform:translateY(1px)}
+
+/* Suspects */
+.suspects{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}
+.suspect{appearance:none;border:3px solid transparent;background:#fff;color:var(--encre);border-radius:18px;padding:10px 8px 12px;font:inherit;text-align:center;cursor:pointer}
+.suspect svg{width:84px;height:84px;display:block;margin:0 auto 4px}
+.suspect .nom{font-weight:800;font-size:16px;line-height:1.15}
+.suspect[aria-pressed="true"]{border-color:var(--citrouille);background:#FFF1E6;box-shadow:0 0 0 3px rgba(242,107,29,.25)}
+.erreur{margin-top:12px;background:#FDE8EB;color:#7A1626;border-radius:14px;padding:12px 14px;font-weight:700}
+
+/* Victoire */
+.victoire{text-align:center;position:relative;overflow:hidden}
+.victoire .singe{width:170px;height:auto;margin:6px auto 0;display:block;animation:rebond .9s cubic-bezier(.3,1.6,.5,1) both}
+.victoire h1{margin:4px 0 8px}
+.mot{background:var(--encre);color:var(--banane);border-radius:20px;padding:16px;margin-top:16px}
+.mot .jour{font-size:15px;color:var(--doux)}
+.mot .le-mot{font-size:clamp(30px,10vw,44px);font-weight:800;letter-spacing:.04em;line-height:1.1;margin:4px 0}
+.mot .heure{font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;color:var(--papier)}
+.avertissement{font-size:15px;color:var(--gris);margin-top:12px}
+.pluie{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.victoire > *:not(.pluie){position:relative;z-index:1}
+.pluie svg{position:absolute;top:-40px;width:34px;height:22px;opacity:.9;animation:chute ease-in 1 both}
+@keyframes chute{to{transform:translateY(900px) rotate(240deg);opacity:0}}
+@keyframes rebond{from{transform:scale(.3) translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .victoire .singe{animation:none}
+  .pluie{display:none}
+}
+
+.marque{display:block;width:120px;height:auto;margin:0 auto 12px}
+.bandeau{display:block;width:100%;height:auto;border-radius:22px;margin:0 0 16px;border:3px solid rgba(255,255,255,.18)}
+.decor{position:fixed;top:0;left:0;right:0;height:120px;pointer-events:none;z-index:0;overflow:hidden}
+.decor svg{position:absolute;fill:var(--decor-couleur);opacity:var(--decor-opacite,.75)}
+.victoire .bandeau{margin:0 0 12px;border-radius:16px}
+.fanions .wrap{padding-top:calc(max(16px,env(safe-area-inset-top)) + 36px)}
+
+/* Pied de page */
+.pied{margin-top:22px;font-size:14px;color:var(--doux);text-align:center}
+</style>
+</head>
+<body>
+<main class="wrap" id="app" aria-live="polite"></main>
+<noscript><div class="wrap"><p>Ce jeu a besoin de JavaScript. Essaie avec le navigateur de ton téléphone.</p></div></noscript>
+
+<script>
+(function(){
+"use strict";
+var DATA = /*__DATA__*/null;
+var app = document.getElementById("app");
+
+/* ---------- Utilitaires ---------- */
+function typo(s){ return String(s).replace(/ ([!?:;»])/g, "\u202f$1").replace(/(«) /g, "$1\u202f"); }
+function el(tag, props, kids){
+  var e = document.createElement(tag);
+  props = props || {};
+  Object.keys(props).forEach(function(k){
+    if(k === "class") e.className = props[k];
+    else if(k === "text") e.textContent = typo(props[k]);
+    else if(k === "html") e.innerHTML = props[k];   // uniquement pour les SVG internes
+    else if(k.slice(0,2) === "on") e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  });
+  (kids || []).forEach(function(c){ if(c) e.appendChild(c); });
+  return e;
+}
+function deParc(nom){ return (/^[AEIOUYÂÊÉÈ]/i.test(nom) ? "d'" : "de ") + nom; }
+function fmt(s, vars){
+  return String(s).replace(/\{(\w+)\}/g, function(_, k){ return vars && vars[k] != null ? vars[k] : "{"+k+"}"; });
+}
+function clear(){ while(app.firstChild) app.removeChild(app.firstChild); window.scrollTo(0,0); }
+function show(nodes){ clear(); nodes.forEach(function(n){ app.appendChild(n); }); }
+
+/* ---------- Date et heure (toujours à l'heure de Paris) ---------- */
+var params = new URLSearchParams(location.search);
+var TEST = params.get("test") === "1";
+function parisDate(){
+  var o = params.get("date");
+  if(TEST && /^\d{4}-\d{2}-\d{2}$/.test(o || "")) return o;
+  return new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+}
+function dayIndex(dateStr){
+  var a = dateStr.split("-").map(Number), b = DATA.periode.debut.split("-").map(Number);
+  return Math.round((Date.UTC(a[0],a[1]-1,a[2]) - Date.UTC(b[0],b[1]-1,b[2])) / 86400000);
+}
+function motDuJour(dateStr){
+  var n = DATA.mots.length, i = dayIndex(dateStr);
+  return DATA.mots[((i % n) + n) % n];
+}
+function coupableDuJour(parcId, dateStr){      // MÊME formule que build.py (coupable_du_jour)
+  var ids = DATA.suspectsListe, n = ids.length, i = dayIndex(dateStr);
+  return ids[(((DATA.parcs[parcId].depart + i) % n) + n) % n];
+}
+function temoinsDuJour(parcId, dateStr){
+  var parc = DATA.parcs[parcId], textes = parc.variantes[coupableDuJour(parcId, dateStr)];
+  return parc.etapes.slice(1,5).map(function(e, k){ return {icone:e.temoin.icone, nom:e.temoin.nom, texte:textes[k]}; });
+}
+function dateLongue(dateStr){
+  return new Intl.DateTimeFormat("fr-FR",{timeZone:"UTC",weekday:"long",day:"numeric",month:"long"}).format(new Date(dateStr + "T12:00:00Z"));
+}
+function heureParis(){
+  return new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date());
+}
+
+/* ---------- Dessins ---------- */
+var uid = 0;
+function bananeSvg(fill, stroke){
+  return '<svg viewBox="0 0 40 24" aria-hidden="true"><path d="M3 5C7 19 22 25 37 14c1.5-1.4 0-4-2-3C25 17 12 14 8 4 6.500 1.500 2.500 2.500 3 5Z" fill="'+fill+'" stroke="'+(stroke||"none")+'" stroke-width="1.500" stroke-linejoin="round"/></svg>';
+}
+function portrait(){
+  return el("div",{"class":"portrait"},[
+    el("img",{src:"img/monky-tete.webp",alt:"Monky, la mascotte disparue",width:"340",height:"375",decoding:"async"}),
+    el("span",{"class":"tampon","aria-hidden":"true",text:"Disparu !"})
+  ]);
+}
+function avatarSvg(id){
+  var u = ++uid, s = '<svg viewBox="0 0 100 100" aria-hidden="true">';
+  if(id === "zelie"){
+    s += '<path d="M12 100Q50 58 88 100Z" fill="#6B35A0"/>';
+    s += '<circle cx="50" cy="62" r="20" fill="#BFE3A0"/>';
+    s += '<polygon points="50,2 28,42 72,42" fill="#4A2070"/><ellipse cx="50" cy="42" rx="31" ry="6.500" fill="#3A1858"/><rect x="38" y="33" width="24" height="5" fill="#FFC93C"/>';
+    s += '<circle cx="43" cy="60" r="2.500" fill="#1E1233"/><circle cx="57" cy="60" r="2.500" fill="#1E1233"/><path d="M43 69q7 5 14 0" fill="none" stroke="#1E1233" stroke-width="2.200" stroke-linecap="round"/>';
+  } else if(id === "dracul"){
+    s += '<path d="M6 100L28 60 50 82 72 60 94 100Z" fill="#1E1233"/><path d="M28 60L50 82 72 60 64 100H36Z" fill="#B83247"/>';
+    s += '<circle cx="50" cy="48" r="21" fill="#E9E4F2"/>';
+    s += '<path d="M28 46Q50 14 72 46Q62 36 50 38Q38 36 28 46Z" fill="#1E1233"/>';
+    s += '<circle cx="43" cy="50" r="2.500" fill="#1E1233"/><circle cx="57" cy="50" r="2.500" fill="#1E1233"/>';
+    s += '<path d="M42 59q8 6 16 0Z" fill="#B83247"/><polygon points="44,59 47,59 45.500,65" fill="#fff"/><polygon points="53,59 56,59 54.500,65" fill="#fff"/>';
+  } else if(id === "citrouille"){
+    s += '<ellipse cx="50" cy="62" rx="32" ry="28" fill="#F26B1D"/>';
+    s += '<path d="M50 36Q38 62 50 90M50 36Q62 62 50 90M36 40Q20 62 36 88M64 40Q80 62 64 88" fill="none" stroke="#C9500B" stroke-width="2.500"/>';
+    s += '<rect x="47" y="26" width="6" height="12" rx="2" fill="#2FAE62"/>';
+    s += '<path d="M26 34Q50 4 74 34Q50 26 26 34Z" fill="#1E1233"/><circle cx="50" cy="22" r="3" fill="#fff"/>';
+    s += '<path d="M34 62L43 62 38.500 53Z M57 62L66 62 61.500 53Z" fill="#1E1233"/>';
+    s += '<path d="M34 72L41 79 46 72 54 79 59 72 66 77 62 85H38Z" fill="#FFC93C" stroke="#1E1233" stroke-width="2" stroke-linejoin="round"/>';
+  } else {
+    s += '<defs><clipPath id="cm'+u+'"><circle cx="50" cy="52" r="32"/></clipPath></defs>';
+    s += '<circle cx="50" cy="52" r="32" fill="#3B2763"/>';
+    s += '<g clip-path="url(#cm'+u+')" transform="rotate(-8 50 52)" fill="#F4EFE0" stroke="#CFC4A6" stroke-width="1.600">';
+    s += '<rect x="10" y="18" width="80" height="10" rx="5"/><rect x="10" y="29" width="80" height="10" rx="5"/>';
+    s += '<rect x="10" y="62" width="80" height="10" rx="5"/><rect x="10" y="73" width="80" height="10" rx="5"/><rect x="10" y="84" width="80" height="10" rx="5"/></g>';
+    s += '<circle cx="39" cy="50" r="6" fill="#fff"/><circle cx="61" cy="50" r="6" fill="#fff"/><circle cx="40.500" cy="51" r="2.800" fill="#1E1233"/><circle cx="59.500" cy="51" r="2.800" fill="#1E1233"/>';
+    s += '<path d="M72 30q14 6 12 20" fill="none" stroke="#CFC4A6" stroke-width="5" stroke-linecap="round"/>';
+  }
+  return s + '</svg>';
+}
+
+/* ---------- Thèmes par parc (design seulement : ne touche ni aux QR ni au contenu) ---------- */
+var CHAUVE = '<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c-2-3-5-4-9-3 2 1 3 3 3 5C10 6 5 6 1 9c4 0 6 2 7 4 2-2 5-2 7 0 1-2 3-3 5-3s4 1 5 3c2-2 5-2 7 0 1-2 3-4 7-4-4-3-9-3-13-1 0-2 1-4 3-5-4-1-7 0-9 3Z"/></svg>';
+var CROIX = '<svg viewBox="0 0 24 34" aria-hidden="true"><path d="M9 0h6v9h8v6h-8v19H9V15H1V9h8Z"/></svg>';
+var CRANE = '<svg viewBox="0 0 24 26" aria-hidden="true"><path fill-rule="evenodd" d="M12 1C6 1 2 5 2 11c0 3 1.500 5 3 6v6h14v-6c1.500-1 3-3 3-6 0-6-4-10-10-10ZM8 9a2.500 2.500 0 1 0 .01 0ZM16 9a2.500 2.500 0 1 0 .01 0ZM12 14l-1.500 3h3Z"/></svg>';
+var FANIONS = (function(){
+  var couleurs = ["#E0145A","#1AA0A5","#F7931E","#F3E9C2"], f = "";
+  for(var i=0;i<10;i++){ var x = 4 + i*39.500; f += '<path d="M'+x+' 8h32v24l-16 12-16-12Z" fill="'+couleurs[i%4]+'"/>'; }
+  return '<svg viewBox="0 0 400 48" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6Q200 18 400 6" fill="none" stroke="#F3E9C2" stroke-width="2"/>'+f+'</svg>';
+})();
+var THEMES = {
+  agen: {
+    couleur:"#0f1b2d",
+    vars:{"--nuit":"#0f1b2d","--nuit-2":"#1d3550","--fond-haut":"#27465f","--fond-bas":"#0d1522","--halo":"rgba(255,255,255,.22)",
+          "--papier":"#EEF3F8","--encre":"#161d2a","--gris":"#52607a","--doux":"#B9C8DA","--citrouille":"#F5A623"},
+    decor:{ svg:CHAUVE, pos:[ ["left:6%;top:42px;width:44px","rotate(-12deg)"], ["left:34%;top:14px;width:30px","rotate(8deg)"], ["right:10%;top:58px;width:38px","rotate(14deg)"] ] },
+    scene:"img/agen-scene.webp", sceneW:520, sceneH:461, sceneAlt:"Monky la sorcière vole devant la pleine lune"
+  },
+  chateauroux: {
+    couleur:"#0e0e14",
+    vars:{"--nuit":"#0e0e14","--nuit-2":"#3a1013","--fond-haut":"#0e0e14","--fond-bas":"#4a1216","--halo":"rgba(225,31,38,.32)",
+          "--papier":"#F0E9CD","--encre":"#15141b","--gris":"#5c5640","--doux":"#D9CFA9","--citrouille":"#E11F26","--rouge":"#B3141C","--decor-couleur":"#000","--decor-opacite":".3"},
+    decor:{ svg:CROIX, pos:[ ["left:7%;top:50px;width:20px","rotate(-10deg)"], ["left:40%;top:20px;width:14px","rotate(6deg)"], ["right:9%;top:62px;width:22px","rotate(12deg)"] ] },
+    scene:"img/chateauroux-scene.webp", sceneW:520, sceneH:320, sceneAlt:"Monky le zombie rôde dans le cimetière"
+  },
+  laval: {
+    couleur:"#cd3a50",
+    vars:{"--nuit":"#b02f45","--nuit-2":"#8c2238","--fond-haut":"#cd3a50","--fond-bas":"#b02f45","--halo":"rgba(255,214,170,.25)",
+          "--fond-image":"repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 56px,transparent 56px 112px)",
+          "--papier":"#FBF1E2","--encre":"#2b1230","--gris":"#6b4a5c","--doux":"#FFF4EE","--citrouille":"#E8441A","--rouge":"#A81C2C","--decor-couleur":"#F7E9D2","--decor-opacite":".3","--accent-entete":"#530b2d"},
+    decor:{ svg:CRANE, pos:[ ["left:6%;top:46px;width:30px","rotate(-10deg)"], ["left:42%;top:14px;width:22px","rotate(6deg)"], ["right:8%;top:56px;width:28px","rotate(11deg)"] ] },
+    scene:"img/laval-scene.webp", sceneW:480, sceneH:425, sceneAlt:"Monky le clown jongle avec des crânes sous le chapiteau"
+  },
+  montdemarsan: {
+    couleur:"#341855",
+    vars:{"--nuit":"#341855","--nuit-2":"#4b2477","--fond-haut":"#3f1d68","--fond-bas":"#1f0f38","--halo":"rgba(224,20,90,.30)",
+          "--papier":"#FBF2DA","--encre":"#2a1148","--gris":"#6a4f86","--doux":"#D8C6F0","--citrouille":"#F7931E","--rouge":"#C8124F","--decor-opacite":"1"},
+    decor:{ svg:FANIONS, pos:[ ["left:0;top:0;width:100%;height:44px;opacity:1","none"] ], pleine:true },
+    scene:"img/montdemarsan-scene.webp", sceneW:520, sceneH:328, sceneAlt:"Trois Monky squelettes dansent pour la fête des morts"
+  }
+};
+var THEME = null;
+function appliquerTheme(parcId){
+  THEME = THEMES[parcId] || null;
+  if(!THEME) return;
+  var r = document.documentElement.style;
+  Object.keys(THEME.vars).forEach(function(k){ r.setProperty(k, THEME.vars[k]); });
+  var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", THEME.couleur);
+  if(THEME.decor && !document.querySelector(".decor")){
+    var d = el("div",{"class":"decor","aria-hidden":"true"});
+    THEME.decor.pos.forEach(function(b){
+      var w = el("div",{html:THEME.decor.svg}); var svg = w.firstChild;
+      svg.setAttribute("style", b[0] + ";transform:" + b[1]);
+      d.appendChild(svg);
+    });
+    document.body.insertBefore(d, document.body.firstChild);
+    if(THEME.decor.pleine) document.body.classList.add("fanions");
+  }
+}
+function bandeau(){
+  if(!THEME || !THEME.scene) return null;
+  return el("img",{"class":"bandeau",src:THEME.scene,alt:THEME.sceneAlt,width:String(THEME.sceneW),height:String(THEME.sceneH),decoding:"async"});
+}
+
+/* ---------- Écrans ---------- */
+function entete(parc, etape){
+  var prog = el("div",{"class":"progression",role:"img","aria-label":"Poste "+etape+" sur 6"});
+  for(var i=1;i<=6;i++){
+    var s = i < etape ? bananeSvg("#FFC93C") : (i === etape ? bananeSvg("#FFC93C","#fff") : bananeSvg("rgba(255,255,255,.14)","rgba(255,255,255,.35)"));
+    prog.appendChild(el("span",{html:s}));
+  }
+  var logo = THEME ? el("img",{"class":"marque",src:"img/logo-blanc.webp",alt:"Monky, le loisir en plus fou",width:"420",height:"159"}) : null;
+  return [
+    logo,
+    el("div",{"class":"entete"},[
+      el("div",{"class":"ligne"},[
+        el("div",{"class":"parc",text:"Parc "+deParc(parc.nom)}),
+        el("div",{"class":"poste",text:"Poste "+etape+" sur 6"})
+      ]),
+      prog
+    ])
+  ].filter(Boolean);
+}
+function messageSimple(titre, texte, avecSinge){
+  var nodes = [];
+  if(avecSinge){
+    var avis = el("section",{"class":"avis"},[
+      el("h1",{text:"Avis de recherche"}),
+      el("p",{"class":"sous",text:"Introuvable : "+DATA.mascotte}),
+      portrait()
+    ]);
+    nodes.push(avis);
+  }
+  nodes.push(el("section",{"class":"carte"},[ el("h2",{text:titre}), el("p",{text:texte}) ]));
+  show(nodes);
+}
+
+function enigmeBloc(etape){
+  var e = etape.vers;
+  var bloc = el("section",{"class":"enigme"},[
+    el("h2",{text:DATA.recits.enigme_titre}),
+    el("p",{"class":"texte",text:e.enigme}),
+    el("p",{"class":"consigne",text:DATA.recits.scan_consigne})
+  ]);
+  var zone = el("div");
+  var btn1 = el("button",{"class":"bouton clair",type:"button",text:"Un coup de pouce"});
+  btn1.addEventListener("click", function(){
+    zone.appendChild(el("p",{"class":"indice",text:e.indice1}));
+    var btn2 = el("button",{"class":"bouton clair",type:"button",text:"Je ne trouve toujours pas"});
+    btn2.addEventListener("click", function(){
+      zone.appendChild(el("p",{"class":"indice",text:e.indice2}));
+      btn2.remove();
+    });
+    btn1.replaceWith(btn2);
+  });
+  zone.appendChild(btn1);
+  bloc.appendChild(zone);
+  return bloc;
+}
+
+function temoignageBloc(t){
+  return el("section",{"class":"temoignage"},[
+    el("div",{"class":"qui"},[ el("span",{"class":"ico",text:t.icone,"aria-hidden":"true"}), el("span",{text:t.nom+" raconte"}) ]),
+    el("p",{"class":"cite",text:"«\u202f"+t.texte+"\u202f»"})
+  ]);
+}
+
+function ecranEtape(parcId, etape){
+  var parc = DATA.parcs[parcId], v = {m:DATA.mascotte};
+  var st = parc.etapes[etape-1];
+  var nodes = entete(parc, etape);
+
+  if(etape === 1){
+    var ban = bandeau(); if(ban) nodes.push(ban);
+    nodes.push(el("section",{"class":"avis"},[
+      el("h1",{text:"Avis de recherche"}),
+      el("p",{"class":"sous",text:"Introuvable : "+DATA.mascotte}),
+      portrait()
+    ]));
+    nodes.push(el("section",{"class":"carte"},[
+      el("h2",{text:fmt(DATA.recits.intro_titre,v)}),
+      el("p",{text:fmt(DATA.recits.intro,v)})
+    ]));
+    nodes.push(enigmeBloc(st));
+    nodes.push(el("p",{"class":"pied",text:DATA.messages.securite}));   // uniquement sur le poste 1
+  } else if(etape < 6){
+    nodes.push(temoignageBloc(temoinsDuJour(parcId, parisDate())[etape-2]));
+    nodes.push(enigmeBloc(st));
+  } else {
+    nodes.push(ecranFinal(parcId));
+    show(nodes);
+    return;
+  }
+  show(nodes);
+}
+
+function ecranFinal(parcId){
+  var parc = DATA.parcs[parcId], v = {m:DATA.mascotte};
+  var frag = el("div");
+  frag.appendChild(el("section",{"class":"carte"},[
+    el("h2",{text:fmt(DATA.recits.final_titre,v)}),
+    el("p",{text:fmt(DATA.recits.final,v)})
+  ]));
+  temoinsDuJour(parcId, parisDate()).forEach(function(t){ frag.appendChild(temoignageBloc(t)); });
+
+  var choix = null;
+  var grille = el("div",{"class":"suspects",role:"group","aria-label":"Les suspects"});
+  var cartes = {};
+  var erreur = el("p",{"class":"erreur",role:"alert",hidden:"hidden"});
+  var go = el("button",{"class":"bouton ok",type:"button",text:"Désigner le coupable",disabled:"disabled"});
+
+  DATA.suspectsListe.forEach(function(sid){
+    var s = DATA.suspects[sid];
+    var b = el("button",{"class":"suspect",type:"button","aria-pressed":"false"},[
+      el("div",{html:avatarSvg(sid)}),
+      el("div",{"class":"nom",text:s.nom.charAt(0).toUpperCase()+s.nom.slice(1)})
+    ]);
+    b.addEventListener("click", function(){
+      choix = sid;
+      Object.keys(cartes).forEach(function(k){ cartes[k].setAttribute("aria-pressed", k === sid ? "true" : "false"); });
+      go.removeAttribute("disabled");
+      erreur.hidden = true;
+    });
+    cartes[sid] = b;
+    grille.appendChild(b);
+  });
+
+  var verrou = false;
+  go.addEventListener("click", function(){
+    if(!choix || verrou) return;
+    if(choix === coupableDuJour(parcId, parisDate())){
+      try{ localStorage.setItem("enquete-gagne-"+parcId, parisDate()+"|"+choix); }catch(e){}
+      ecranVictoire(parcId, choix);
+      return;
+    }
+    erreur.textContent = typo(fmt(DATA.recits.mauvaise, v));
+    erreur.hidden = false;
+    verrou = true;
+    var n = 5;
+    go.setAttribute("disabled","disabled");
+    go.textContent = "Réessayer dans " + n + " s";
+    var t = setInterval(function(){
+      n--;
+      if(n <= 0){
+        clearInterval(t); verrou = false;
+        go.textContent = "Désigner le coupable";
+        if(choix) go.removeAttribute("disabled");
+      } else go.textContent = "Réessayer dans " + n + " s";
+    }, 1000);
+  });
+
+  var carteChoix = el("section",{"class":"carte"},[
+    el("h2",{text:"Qui est le coupable ?"}), grille, erreur, go
+  ]);
+  frag.appendChild(carteChoix);
+  return frag;
+}
+
+function ecranVictoire(parcId, sid){
+  var parc = DATA.parcs[parcId], v = {m:DATA.mascotte};
+  var jour = parisDate();
+  var coupable = DATA.suspects[sid];
+  var nodes = [];
+  var carte = el("section",{"class":"carte victoire"});
+  var pluie = el("div",{"class":"pluie","aria-hidden":"true"});
+  for(var i=0;i<14;i++){
+    var b = el("span",{html:bananeSvg("#FFC93C","#E6A800")});
+    var svg = b.firstChild;
+    svg.style.left = (4 + i*7) + "%";
+    svg.style.animationDuration = (2.2 + (i%5)*0.5) + "s";
+    svg.style.animationDelay = (i*0.12) + "s";
+    pluie.appendChild(svg);
+  }
+  carte.appendChild(pluie);
+  var ban = bandeau(); if(ban) carte.appendChild(ban);
+  carte.appendChild(el("img",{"class":"singe",src:"img/monky-tete.webp",alt:"Monky est de retour",width:"340",height:"375",decoding:"async"}));
+  carte.appendChild(el("h1",{text:fmt(DATA.recits.victoire_titre,v)}));
+  carte.appendChild(el("p",{text:fmt(DATA.recits.victoire,{nom:coupable.nom,lieu:parc.recompenseLieu,recompense:DATA.recompense})}));
+  var heure = el("div",{"class":"heure",text:heureParis()});
+  carte.appendChild(el("div",{"class":"mot"},[
+    el("div",{"class":"jour",text:"Mot du jour · " + dateLongue(jour)}),
+    el("div",{"class":"le-mot",text:motDuJour(jour)}),
+    heure
+  ]));
+  carte.appendChild(el("p",{"class":"avertissement",text:"Cet écran se montre en direct à l'équipe : une capture d'écran ne sera pas acceptée."}));
+  nodes.push(carte);
+  show(nodes);
+  setInterval(function(){ heure.textContent = heureParis(); }, 1000);
+}
+
+/* ---------- Démarrage ---------- */
+function demarrer(){
+  var jour = parisDate();
+  var token = params.get("e");
+  if(!TEST){
+    if(jour < DATA.periode.debut){ messageSimple("Un mystère se prépare…", DATA.messages.avant, true); return; }
+    if(jour > DATA.periode.fin){ messageSimple("Merci, détectives !", DATA.messages.apres, false); return; }
+  }
+  if(!token){ messageSimple(DATA.titre, DATA.messages.sans_code, true); return; }
+  var t = DATA.tokens[token];
+  if(!t){ messageSimple("QR code non reconnu", DATA.messages.code_inconnu, false); return; }
+  appliquerTheme(t.p);
+  var deja = null;
+  try{ deja = localStorage.getItem("enquete-gagne-"+t.p); }catch(e){}
+  if(t.s === 6 && deja){
+    var morceaux = deja.split("|");
+    if(morceaux[0] === jour && DATA.suspects[morceaux[1]]){ ecranVictoire(t.p, morceaux[1]); return; }
+  }
+  ecranEtape(t.p, t.s);
+}
+demarrer();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+{
+  "_lisez_moi": "Tout le texte du jeu est ici, étape par étape. Chaque parc a 6 étapes (postes). Sur un poste : 'temoin' = QUI parle (icône, nom) et sur quel 'trait' du coupable (chapeau, tenue, cape, objet) ; 'enigme' = l'énigme qui mène au poste SUIVANT ('mene_a' rappelle lequel) ; 'indice1' et 'indice2' = les deux niveaux d'aide. Le poste 6 n'a pas d'énigme : il affiche les 4 témoignages et le choix du coupable. LE COUPABLE CHANGE CHAQUE JOUR : pour chaque parc, 'coupable' est celui du PREMIER jour d'ouverture, puis on passe au suivant dans la liste 'suspects' à chaque nouveau jour (heure de Paris), en bouclant. Ce que disent les témoins se déduit des attributs du coupable du jour (chapeau, tenue, cape, objet de chaque suspect) grâce aux phrases de 'temoignages' : si tu modifies une phrase, elle s'applique à tous les parcs. Chaque suspect doit rester le seul à correspondre aux 4 témoignages qui le visent (le générateur le vérifie).",
+  "marque": "Monky",
+  "titre": "L'enquête de la mascotte",
+  "mascotte": "Monky",
+  "recompense": "100 bananacoins",
+  "periode": {
+    "debut": "2026-10-17",
+    "fin": "2026-11-02"
+  },
+  "messages": {
+    "avant": "L'enquête commence le samedi 17 octobre. Reviens ce jour-là avec ton adulte !",
+    "apres": "L'enquête est terminée. Merci d'avoir mené l'enquête, à bientôt pour la prochaine !",
+    "sans_code": "Pour jouer, cherche l'affiche de départ à l'accueil de ton parc et scanne son QR code.",
+    "code_inconnu": "Ce QR code n'est pas reconnu. Retourne à l'accueil du parc : un adulte de l'équipe t'aidera à reprendre l'enquête.",
+    "securite": "À vous de jouer ! Les témoins ne s'envoleront pas, rien ne sert de courir. Les enfants doivent rester sous la surveillance d'un adulte."
+  },
+  "recits": {
+    "intro_titre": "{m} a disparu !",
+    "intro": "Cette nuit, plus de {m} : il ne reste que des peaux de bananes et de drôles de traces. Le parc a besoin de détectives : vous allez interroger les témoins un par un, puis désigner le coupable.",
+    "temoin_titre": "Un témoin parle",
+    "enigme_titre": "Où est le prochain témoin ?",
+    "scan_consigne": "Trouve l'affiche avec ce QR code et scanne-la.",
+    "final_titre": "Qui a enlevé {m} ?",
+    "final": "Vous avez interrogé tous les témoins. Relisez leurs témoignages, puis désignez le coupable.",
+    "mauvaise": "Ce n'est pas lui. Relisez les témoignages : qui porte un chapeau ? Qui porte une cape ?",
+    "victoire_titre": "{m} est de retour !",
+    "victoire": "Bravo, détectives : le coupable, c'était {nom}. Montre cet écran en direct à {lieu} pour recevoir tes {recompense}."
+  },
+  "suspects": {
+    "zelie": {
+      "nom": "Zélie la sorcière",
+      "chapeau": true,
+      "tenue": "sombre",
+      "cape": true,
+      "objet": "un balai"
+    },
+    "dracul": {
+      "nom": "le comte Dracul",
+      "chapeau": false,
+      "tenue": "sombre",
+      "cape": true,
+      "objet": "une petite chauve-souris"
+    },
+    "citrouille": {
+      "nom": "le capitaine Citrouille",
+      "chapeau": true,
+      "tenue": "claire",
+      "cape": false,
+      "objet": "une lanterne"
+    },
+    "momie": {
+      "nom": "madame Momie",
+      "chapeau": false,
+      "tenue": "claire",
+      "cape": false,
+      "objet": "des bandelettes qui traînent"
+    }
+  },
+  "parcs": {
+    "agen": {
+      "nom": "Agen",
+      "coupable": "momie",
+      "recompense_lieu": "l'accueil",
+      "etapes": [
+        {
+          "poste": 1,
+          "lieu": "Accueil",
+          "mene_a": "Kid",
+          "enigme": "Pas besoin d'être grand pour y entrer : on y grimpe, on y glisse et on s'y cache pour jouer. Où suis-je ?",
+          "indice1": "Cherche la zone avec des toboggans et des petits tunnels.",
+          "indice2": "C'est la zone Kid ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 2,
+          "lieu": "Kid",
+          "temoin": {
+            "icone": "🐈‍⬛",
+            "nom": "Le chat noir",
+            "trait": "chapeau"
+          },
+          "mene_a": "Jump",
+          "enigme": "Ici, le sol est un ressort : on saute, on rebondit, on touche presque le plafond ! Où suis-je ?",
+          "indice1": "Écoute les rebonds : cherche la zone des trampolines.",
+          "indice2": "C'est la zone Jump ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 3,
+          "lieu": "Jump",
+          "temoin": {
+            "icone": "🕷️",
+            "nom": "L'araignée du plafond",
+            "trait": "tenue"
+          },
+          "mene_a": "Quiz Room",
+          "enigme": "Dans cette salle, on réfléchit en équipe et on gagne avec les meilleures réponses. Où suis-je ?",
+          "indice1": "Cherche la salle où l'on joue avec des questions.",
+          "indice2": "C'est la Quiz Room ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 4,
+          "lieu": "Quiz Room",
+          "temoin": {
+            "icone": "👻",
+            "nom": "Le petit fantôme",
+            "trait": "cape"
+          },
+          "mene_a": "Laser Game",
+          "enigme": "Dans la pénombre, des faisceaux de lumière traversent la pièce. Chut, ne te fais pas toucher ! Où suis-je ?",
+          "indice1": "Cherche l'endroit sombre où l'on joue avec des gilets lumineux.",
+          "indice2": "C'est le Laser Game ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 5,
+          "lieu": "Laser Game",
+          "temoin": {
+            "icone": "🦇",
+            "nom": "La chauve-souris",
+            "trait": "objet"
+          },
+          "mene_a": "Bowling",
+          "enigme": "Dix quilles blanches attendent qu'une grosse boule vienne les renverser. Où suis-je ?",
+          "indice1": "Cherche les pistes avec les boules colorées.",
+          "indice2": "C'est le Bowling ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 6,
+          "lieu": "Bowling"
+        }
+      ]
+    },
+    "laval": {
+      "nom": "Laval",
+      "coupable": "dracul",
+      "recompense_lieu": "l'accueil",
+      "etapes": [
+        {
+          "poste": 1,
+          "lieu": "Accueil",
+          "mene_a": "Restaurant",
+          "enigme": "C'est ici que les ventres qui gargouillent finissent par sourire. Où suis-je ?",
+          "indice1": "Cherche l'endroit où l'on sent bon le goûter.",
+          "indice2": "C'est le Restaurant ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 2,
+          "lieu": "Restaurant",
+          "temoin": {
+            "icone": "🐈‍⬛",
+            "nom": "Le chat noir",
+            "trait": "chapeau"
+          },
+          "mene_a": "Terrasse",
+          "enigme": "On y respire le grand air, assis sous le ciel, sans quitter le parc. Où suis-je ?",
+          "indice1": "Cherche l'endroit en plein air, avec des tables dehors.",
+          "indice2": "C'est la Terrasse ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 3,
+          "lieu": "Terrasse",
+          "temoin": {
+            "icone": "🕷️",
+            "nom": "L'araignée du plafond",
+            "trait": "tenue"
+          },
+          "mene_a": "Karting",
+          "enigme": "Les moteurs ronronnent, les casques sont de sortie : à toi le virage ! Où suis-je ?",
+          "indice1": "Cherche la piste où l'on conduit de petites voitures de course.",
+          "indice2": "C'est le Karting ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 4,
+          "lieu": "Karting",
+          "temoin": {
+            "icone": "👻",
+            "nom": "Le petit fantôme",
+            "trait": "cape"
+          },
+          "mene_a": "Anniversaire",
+          "enigme": "Des ballons, des bougies et une salle décorée pour fêter un grand jour. Où suis-je ?",
+          "indice1": "Cherche la salle décorée pour les fêtes d'anniversaire.",
+          "indice2": "C'est l'espace Anniversaire ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 5,
+          "lieu": "Anniversaire",
+          "temoin": {
+            "icone": "🦇",
+            "nom": "La chauve-souris",
+            "trait": "objet"
+          },
+          "mene_a": "Bowling",
+          "enigme": "Dix quilles blanches attendent qu'une grosse boule vienne les renverser. Où suis-je ?",
+          "indice1": "Cherche les pistes avec les boules colorées.",
+          "indice2": "C'est le Bowling ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 6,
+          "lieu": "Bowling"
+        }
+      ]
+    },
+    "chateauroux": {
+      "nom": "Châteauroux",
+      "coupable": "citrouille",
+      "recompense_lieu": "l'accueil",
+      "etapes": [
+        {
+          "poste": 1,
+          "lieu": "Accueil",
+          "mene_a": "Kid",
+          "enigme": "Pas besoin d'être grand pour y entrer : on y grimpe, on y glisse et on s'y cache pour jouer. Où suis-je ?",
+          "indice1": "Cherche la zone avec des toboggans et des petits tunnels.",
+          "indice2": "C'est la zone Kid ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 2,
+          "lieu": "Kid",
+          "temoin": {
+            "icone": "🐈‍⬛",
+            "nom": "Le chat noir",
+            "trait": "chapeau"
+          },
+          "mene_a": "Jump",
+          "enigme": "Ici, le sol est un ressort : on saute, on rebondit, on touche presque le plafond ! Où suis-je ?",
+          "indice1": "Écoute les rebonds : cherche la zone des trampolines.",
+          "indice2": "C'est la zone Jump ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 3,
+          "lieu": "Jump",
+          "temoin": {
+            "icone": "🕷️",
+            "nom": "L'araignée du plafond",
+            "trait": "tenue"
+          },
+          "mene_a": "Arcade",
+          "enigme": "Des écrans qui clignotent, des manettes et des bruits de bonus : ici, on joue avec ses bananacoins ! Où suis-je ?",
+          "indice1": "Cherche les machines qui clignotent et qui font de la musique.",
+          "indice2": "C'est l'Arcade ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 4,
+          "lieu": "Arcade",
+          "temoin": {
+            "icone": "👻",
+            "nom": "Le petit fantôme",
+            "trait": "cape"
+          },
+          "mene_a": "Restaurant",
+          "enigme": "C'est ici que les ventres qui gargouillent finissent par sourire. Où suis-je ?",
+          "indice1": "Cherche l'endroit où l'on sent bon le goûter.",
+          "indice2": "C'est le Restaurant ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 5,
+          "lieu": "Restaurant",
+          "temoin": {
+            "icone": "🦇",
+            "nom": "La chauve-souris",
+            "trait": "objet"
+          },
+          "mene_a": "Bowling",
+          "enigme": "Dix quilles blanches attendent qu'une grosse boule vienne les renverser. Où suis-je ?",
+          "indice1": "Cherche les pistes avec les boules colorées.",
+          "indice2": "C'est le Bowling ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 6,
+          "lieu": "Bowling"
+        }
+      ]
+    },
+    "montdemarsan": {
+      "nom": "Mont-de-Marsan",
+      "coupable": "zelie",
+      "recompense_lieu": "l'accueil",
+      "etapes": [
+        {
+          "poste": 1,
+          "lieu": "Accueil",
+          "mene_a": "Restaurant",
+          "enigme": "C'est ici que les ventres qui gargouillent finissent par sourire. Où suis-je ?",
+          "indice1": "Cherche l'endroit où l'on sent bon le goûter.",
+          "indice2": "C'est le Restaurant ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 2,
+          "lieu": "Restaurant",
+          "temoin": {
+            "icone": "🐈‍⬛",
+            "nom": "Le chat noir",
+            "trait": "chapeau"
+          },
+          "mene_a": "Kid",
+          "enigme": "Pas besoin d'être grand pour y entrer : on y grimpe, on y glisse et on s'y cache pour jouer. Où suis-je ?",
+          "indice1": "Cherche la zone avec des toboggans et des petits tunnels.",
+          "indice2": "C'est la zone Kid ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 3,
+          "lieu": "Kid",
+          "temoin": {
+            "icone": "🕷️",
+            "nom": "L'araignée du plafond",
+            "trait": "tenue"
+          },
+          "mene_a": "Jump",
+          "enigme": "Ici, le sol est un ressort : on saute, on rebondit, on touche presque le plafond ! Où suis-je ?",
+          "indice1": "Écoute les rebonds : cherche la zone des trampolines.",
+          "indice2": "C'est la zone Jump ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 4,
+          "lieu": "Jump",
+          "temoin": {
+            "icone": "👻",
+            "nom": "Le petit fantôme",
+            "trait": "cape"
+          },
+          "mene_a": "Arcade",
+          "enigme": "Des écrans qui clignotent, des manettes et des bruits de bonus : ici, on joue avec ses bananacoins ! Où suis-je ?",
+          "indice1": "Cherche les machines qui clignotent et qui font de la musique.",
+          "indice2": "C'est l'Arcade ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 5,
+          "lieu": "Arcade",
+          "temoin": {
+            "icone": "🦇",
+            "nom": "La chauve-souris",
+            "trait": "objet"
+          },
+          "mene_a": "Bowling",
+          "enigme": "Dix quilles blanches attendent qu'une grosse boule vienne les renverser. Où suis-je ?",
+          "indice1": "Cherche les pistes avec les boules colorées.",
+          "indice2": "C'est le Bowling ! Si tu as besoin d'aide, demande à un adulte de l'équipe."
+        },
+        {
+          "poste": 6,
+          "lieu": "Bowling"
+        }
+      ]
+    }
+  },
+  "mots_du_jour": [
+    "CITROUILLE",
+    "SQUELETTE",
+    "FANTOME",
+    "SORCIERE",
+    "CHAUDRON",
+    "ARAIGNEE",
+    "BALAI",
+    "MOMIE",
+    "VAMPIRE",
+    "BONBON",
+    "LANTERNE",
+    "GRIMOIRE",
+    "POTION",
+    "CHAUVE-SOURIS",
+    "CORBEAU",
+    "MANOIR",
+    "TOILE",
+    "SORTILEGE",
+    "HIBOU",
+    "BRUME",
+    "CIMETIERE",
+    "SOURIS",
+    "CAPE",
+    "MASQUE"
+  ],
+  "temoignages": {
+    "chapeau": {
+      "oui": "Il portait un chapeau sur la tête, j'en suis sûr !",
+      "non": "Il n'avait pas de chapeau sur la tête."
+    },
+    "tenue": {
+      "claire": "Sa tenue était très claire : on la voyait de loin.",
+      "sombre": "Il était habillé tout en sombre : très difficile à voir dans la nuit."
+    },
+    "cape": {
+      "oui": "Une grande cape flottait derrière lui.",
+      "non": "Pas de cape : il courait vite !"
+    },
+    "objet": "Il avait avec lui {objet}."
+  }
+}

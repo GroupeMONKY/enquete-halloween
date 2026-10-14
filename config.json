@@ -1,0 +1,5 @@
+{
+  "_aide": "base_url : l'adresse définitive du jeu, avec / à la fin (celle que contiennent les QR). Ne la change plus une fois les QR imprimés. Après impression, lance : python3 build.py --figer",
+  "base_url": "A_REMPLIR",
+  "imprime": false
+}
