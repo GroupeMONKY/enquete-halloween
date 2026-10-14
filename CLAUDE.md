@@ -35,7 +35,8 @@ les changements qui casseraient les QR. `--forcer` ne sert qu'à une réimpressi
 - Mobile d'abord : lisible à 360 px de large, aucun défilement horizontal.
 - Aucune ressource externe (pas de police/CDN/analytics), page < 100 Ko, fonctionne sur réseau faible.
 - Public = enfants : aucun cookie, aucun traceur, aucune donnée personnelle. Seul stockage : `localStorage`
-  (clé `enquete-gagne-<parc>` = « date|suspect »).
+  (clés `enquete-gagne-<parc>` = « date|suspect » et `enquete-vu-<parc>` = « date|2,3,… » : les postes 2 à 5 déjà vus aujourd'hui).
+- Verrou du poste 6 : il ne montre que les témoins déjà interrogés sur ce téléphone, le jour même (les autres sont grisés, le choix du coupable est bloqué). Sans stockage disponible, rien n'est imposé ; un lien de secours (« autre téléphone ») débloque sur parole. Textes : `recits.verrou*` et `recits.temoin_manquant`.
 - Typographie française : espace fine insécable avant `! ? : ;` et `»`, après `«` (fonction `typo()`).
   Tout texte affiché passe par elle. Élision correcte (« d'Agen », « de Laval »).
 - Le coupable CHANGE CHAQUE JOUR (heure de Paris) : à partir du `coupable` de `contenu.json` (= celui du 1er jour), on avance d'un suspect par jour, en bouclant. Les 4 témoignages se déduisent des attributs du coupable du jour (phrases dans `temoignages`). Formule identique dans `build.py` (`coupable_du_jour`) et `template.html` (`coupableDuJour`) : les modifier ensemble.

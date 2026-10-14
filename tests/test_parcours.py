@@ -108,6 +108,11 @@ def main():
             pg.goto(BASE + "?e=zzzzzzz&test=1")
             check(typo(c["messages"]["code_inconnu"]) in pg.inner_text("body"), "code inconnu : message clair")
 
+            def voir_temoins(pid, jour, postes=(2, 3, 4, 5)):
+                """Passe devant les postes donnés, comme une famille qui scanne les affiches."""
+                for n in postes:
+                    pg.goto(f"{BASE}?e={tk['parcs'][pid][n - 1]}&test=1&date={jour}")
+
             # ---- les 4 parcs, les 6 postes
             for pid, p in c["parcs"].items():
                 sid_jour = build.coupable_du_jour(c, pid, d_test)
@@ -135,7 +140,8 @@ def main():
                 # ---- mauvaise puis bonne réponse
                 pg.goto(f"{BASE}?e={tk['parcs'][pid][5]}&test=1&date={jour_test}")
                 pg.evaluate("localStorage.clear()")
-                pg.reload()
+                voir_temoins(pid, jour_test)
+                pg.goto(f"{BASE}?e={tk['parcs'][pid][5]}&test=1&date={jour_test}")
                 faux = next(k for k in c["suspects"] if k != sid_jour)
                 nom_faux = c["suspects"][faux]["nom"]
                 pg.get_by_role("button", name=re.compile(re.escape(nom_faux), re.I)).click()
@@ -154,6 +160,48 @@ def main():
                 pg.reload()
                 check(titre in pg.inner_text("body"), f"{pid} : victoire conservée après rechargement")
 
+            # ---- verrou du poste 6 : seuls les témoins déjà interrogés sont montrés
+            pidv = next(iter(c["parcs"]))
+            url6 = f"{BASE}?e={tk['parcs'][pidv][5]}&test=1&date={jour_test}"
+            lot = temoignages(pidv, d_test)
+            pg.goto(url6)
+            pg.evaluate("localStorage.clear()")
+            pg.reload()
+            txt = pg.inner_text("body")
+            check(not any(typo(t) in txt for t in lot), f"{pidv} poste 6 direct : aucun témoignage n'est révélé")
+            check(all(typo(c["recits"]["temoin_manquant"].replace("{n}", str(n))) in txt for n in (2, 3, 4, 5)), f"{pidv} poste 6 direct : 4 témoins verrouillés")
+            check(typo(c["recits"]["verrou_titre"]) in txt, f"{pidv} poste 6 direct : message « il te manque des témoignages »")
+            check(pg.get_by_role("button", name="Désigner le coupable").count() == 0, f"{pidv} poste 6 direct : pas de choix du coupable")
+            voir_temoins(pidv, jour_test, postes=(2, 4))
+            pg.goto(url6)
+            txt = pg.inner_text("body")
+            check(typo(lot[0]) in txt and typo(lot[2]) in txt and typo(lot[1]) not in txt and typo(lot[3]) not in txt,
+                  f"{pidv} poste 6 : seuls les témoins des postes 2 et 4 sont montrés")
+            check(all(typo(c["recits"]["temoin_manquant"].replace("{n}", str(n))) in txt for n in (3, 5)) and "postes 3, 5" in txt, f"{pidv} poste 6 : il est dit lesquels manquent")
+            voir_temoins(pidv, jour_test, postes=(3, 5))
+            pg.goto(url6)
+            txt = pg.inner_text("body")
+            check(all(typo(t) in txt for t in lot), f"{pidv} poste 6 : les 4 témoignages après les 4 postes")
+            check(pg.get_by_role("button", name="Désigner le coupable").count() == 1, f"{pidv} poste 6 : choix du coupable disponible")
+            # un autre jour : il faut les reparcourir (la mémoire est quotidienne)
+            autre = (d_test + datetime.timedelta(days=1)).isoformat()
+            pg.goto(f"{BASE}?e={tk['parcs'][pidv][5]}&test=1&date={autre}")
+            check(typo(c["recits"]["verrou_titre"]) in pg.inner_text("body"), f"{pidv} poste 6 le lendemain : de nouveau verrouillé")
+            # lien de secours (autre téléphone)
+            pg.get_by_role("button", name=re.compile("autre téléphone")).click()
+            txt = pg.inner_text("body")
+            check(all(typo(t) in txt for t in temoignages(pidv, d_test + datetime.timedelta(days=1))) and
+                  pg.get_by_role("button", name="Désigner le coupable").count() == 1, f"{pidv} poste 6 : le lien de secours débloque")
+            # stockage indisponible (navigation privée stricte) : on n'impose rien
+            ctx2 = nav.new_context(viewport={"width": 360, "height": 740}, locale="fr-FR", timezone_id="Europe/Paris")
+            ctx2.add_init_script("Object.defineProperty(window,'localStorage',{get(){throw new Error('bloqué')}})")
+            p3 = ctx2.new_page()
+            p3.goto(url6)
+            t3 = p3.inner_text("body")
+            check(all(typo(t) in t3 for t in lot) and p3.get_by_role("button", name="Désigner le coupable").count() == 1,
+                  f"{pidv} poste 6 sans stockage : tout est montré (pas de blocage injuste)")
+            ctx2.close()
+
             # ---- le coupable change chaque jour (et diffère d'un parc à l'autre)
             ids = list(c["suspects"])
             for pid in c["parcs"]:
@@ -166,9 +214,9 @@ def main():
             pidr = next(iter(c["parcs"]))
             for i in range(len(ids) + 1):
                 jr = debut + datetime.timedelta(days=i)
-                pg.goto(f"{BASE}?e={tk['parcs'][pidr][5]}&test=1&date={jr.isoformat()}")
                 pg.evaluate("localStorage.clear()")
-                pg.reload()
+                voir_temoins(pidr, jr.isoformat())
+                pg.goto(f"{BASE}?e={tk['parcs'][pidr][5]}&test=1&date={jr.isoformat()}")
                 txt = pg.inner_text("body")
                 check(all(typo(t) in txt for t in temoignages(pidr, jr)), f"{pidr} {jr} : témoignages du coupable du jour")
                 if i > 0:

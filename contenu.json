@@ -25,7 +25,11 @@
     "final": "Vous avez interrogé tous les témoins. Relisez leurs témoignages, puis désignez le coupable.",
     "mauvaise": "Ce n'est pas lui. Relisez les témoignages : qui porte un chapeau ? Qui porte une cape ?",
     "victoire_titre": "{m} est de retour !",
-    "victoire": "Bravo, détectives : le coupable, c'était {nom}. Montre cet écran en direct à {lieu} pour recevoir tes {recompense}."
+    "victoire": "Bravo, détectives : le coupable, c'était {nom}. Montre cet écran en direct à {lieu} pour recevoir tes {recompense}.",
+    "verrou_titre": "Il te manque des témoignages",
+    "verrou": "Retrouve les témoins des postes {postes} : leurs indices sont indispensables pour désigner le coupable.",
+    "verrou_secours": "J'ai déjà interrogé les témoins sur un autre téléphone",
+    "temoin_manquant": "Poste {n} : témoin pas encore interrogé"
   },
   "suspects": {
     "zelie": {

@@ -110,6 +110,8 @@ h2{font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
   .pluie{display:none}
 }
 
+.temoignage.verrouille{background:transparent;color:var(--doux);border:2px dashed rgba(255,255,255,.4);border-radius:14px;padding:14px 18px}
+.temoignage.verrouille .qui{margin-bottom:0}
 .marque{display:block;width:120px;height:auto;margin:0 auto 12px}
 .bandeau{display:block;width:100%;height:auto;border-radius:22px;margin:0 0 16px;border:3px solid rgba(255,255,255,.18)}
 .decor{position:fixed;top:0;left:0;right:0;height:120px;pointer-events:none;z-index:0;overflow:hidden}
@@ -176,6 +178,22 @@ function coupableDuJour(parcId, dateStr){      // MÊME formule que build.py (co
 function temoinsDuJour(parcId, dateStr){
   var parc = DATA.parcs[parcId], textes = parc.variantes[coupableDuJour(parcId, dateStr)];
   return parc.etapes.slice(1,5).map(function(e, k){ return {icone:e.temoin.icone, nom:e.temoin.nom, texte:textes[k]}; });
+}
+/* Témoins déjà interrogés aujourd'hui sur ce téléphone (clé enquete-vu-<parc> = « date|2,3 ») */
+function stockageOk(){
+  try{ localStorage.setItem("enquete-test","1"); localStorage.removeItem("enquete-test"); return true; }catch(e){ return false; }
+}
+function lireVus(parcId, jour){
+  if(!stockageOk()) return {ok:false, vus:[]};
+  var v = ""; try{ v = localStorage.getItem("enquete-vu-"+parcId) || ""; }catch(e){}
+  var m = v.split("|");
+  return {ok:true, vus:(m[0] === jour && m[1]) ? m[1].split(",").map(Number) : []};
+}
+function noterVu(parcId, jour, poste){
+  var l = lireVus(parcId, jour);
+  if(!l.ok) return;
+  if(l.vus.indexOf(poste) < 0) l.vus.push(poste);
+  try{ localStorage.setItem("enquete-vu-"+parcId, jour+"|"+l.vus.join(",")); }catch(e){}
 }
 function dateLongue(dateStr){
   return new Intl.DateTimeFormat("fr-FR",{timeZone:"UTC",weekday:"long",day:"numeric",month:"long"}).format(new Date(dateStr + "T12:00:00Z"));
@@ -346,6 +364,12 @@ function enigmeBloc(etape){
   return bloc;
 }
 
+function temoinVerrouille(poste){
+  return el("section",{"class":"temoignage verrouille"},[
+    el("div",{"class":"qui"},[ el("span",{"class":"ico",text:"🔒","aria-hidden":"true"}), el("span",{text:fmt(DATA.recits.temoin_manquant,{n:poste})}) ])
+  ]);
+}
+
 function temoignageBloc(t){
   return el("section",{"class":"temoignage"},[
     el("div",{"class":"qui"},[ el("span",{"class":"ico",text:t.icone,"aria-hidden":"true"}), el("span",{text:t.nom+" raconte"}) ]),
@@ -374,6 +398,7 @@ function ecranEtape(parcId, etape){
   } else if(etape < 6){
     nodes.push(temoignageBloc(temoinsDuJour(parcId, parisDate())[etape-2]));
     nodes.push(enigmeBloc(st));
+    noterVu(parcId, parisDate(), etape);
   } else {
     nodes.push(ecranFinal(parcId));
     show(nodes);
@@ -389,7 +414,25 @@ function ecranFinal(parcId){
     el("h2",{text:fmt(DATA.recits.final_titre,v)}),
     el("p",{text:fmt(DATA.recits.final,v)})
   ]));
-  temoinsDuJour(parcId, parisDate()).forEach(function(t){ frag.appendChild(temoignageBloc(t)); });
+  var jour = parisDate(), vus = lireVus(parcId, jour), manque = [];
+  temoinsDuJour(parcId, jour).forEach(function(t, k){
+    var poste = k + 2;
+    if(vus.ok && vus.vus.indexOf(poste) < 0){ manque.push(poste); frag.appendChild(temoinVerrouille(poste)); }
+    else frag.appendChild(temoignageBloc(t));
+  });
+  if(manque.length){          // sans stockage disponible (vus.ok faux), rien n'est imposé
+    var secours = el("button",{"class":"bouton clair",type:"button",text:DATA.recits.verrou_secours});
+    secours.addEventListener("click", function(){
+      [2,3,4,5].forEach(function(p){ noterVu(parcId, parisDate(), p); });
+      ecranEtape(parcId, 6);
+    });
+    frag.appendChild(el("section",{"class":"carte"},[
+      el("h2",{text:DATA.recits.verrou_titre}),
+      el("p",{text:fmt(DATA.recits.verrou,{postes:manque.join(", ")})}),
+      secours
+    ]));
+    return frag;
+  }
 
   var choix = null;
   var grille = el("div",{"class":"suspects",role:"group","aria-label":"Les suspects"});
