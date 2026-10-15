@@ -3,7 +3,7 @@
 Mini-jeu web pour les familles : la mascotte Monky a disparu, parent + enfant parcourent le parc en
 scannant 6 QR codes (un par poste) et désignent le coupable à la fin. Réussite = 100 bananacoins à
 l'accueil, en montrant l'écran de victoire en direct. Même histoire dans les 4 parcs, seuls les lieux changent.
-Ouverture : samedi 17 octobre 2026 → 2 novembre 2026 (heure de Paris).
+Ouverture : samedi 17 octobre 2026 → 1er novembre 2026 (heure de Paris).
 
 L'utilisateur (Pierre-Elie, Communication & Marketing) pilote tout via Claude Code → GitHub → Vercel.
 Il veut qu'on le challenge : signale clairement ce qui est faible ou risqué, ne valide pas par réflexe.

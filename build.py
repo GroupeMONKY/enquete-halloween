@@ -433,9 +433,12 @@ def ecrire_fiche(c, data, out, rendre_pdf):
     jours_fr = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
     mois_fr = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
                "septembre", "octobre", "novembre", "décembre"]
+    def num(d):
+        return "1er" if d.day == 1 else str(d.day)
+
     lignes, j = [], debut
     while j <= fin:
-        lignes.append((f"{jours_fr[j.weekday()]} {j.day} {mois_fr[j.month-1]}", mot_du_jour(data["mots"], debut, j)))
+        lignes.append((f"{jours_fr[j.weekday()]} {num(j)} {mois_fr[j.month-1]}", mot_du_jour(data["mots"], debut, j)))
         j += datetime.timedelta(days=1)
     moitie = (len(lignes) + 1) // 2
 
@@ -461,7 +464,7 @@ def ecrire_fiche(c, data, out, rendre_pdf):
     """
     corps = f"""<section class="p">
     <h1>Fiche équipe : {html.escape(c['titre'])}</h1>
-    <p>Jeu de piste Halloween pour les familles, du {debut.day} {mois_fr[debut.month-1]} au {fin.day} {mois_fr[fin.month-1]}. Un adulte et un enfant scannent 6 QR codes dans le parc, puis désignent le coupable sur leur téléphone. S'ils réussissent, ils gagnent <b>{html.escape(c['recompense'])}</b>.</p>
+    <p>Jeu de piste Halloween pour les familles, du {num(debut)} {mois_fr[debut.month-1]} au {num(fin)} {mois_fr[fin.month-1]}. Un adulte et un enfant scannent 6 QR codes dans le parc, puis désignent le coupable sur leur téléphone. S'ils réussissent, ils gagnent <b>{html.escape(c['recompense'])}</b>.</p>
 
     <h2>Chaque matin (2 minutes)</h2>
     <ol>
