@@ -40,6 +40,7 @@ les changements qui casseraient les QR. `--forcer` ne sert qu'à une réimpressi
 - Typographie française : espace fine insécable avant `! ? : ;` et `»`, après `«` (fonction `typo()`).
   Tout texte affiché passe par elle. Élision correcte (« d'Agen », « de Laval »).
 - Le coupable CHANGE CHAQUE JOUR (heure de Paris) : à partir du `coupable` de `contenu.json` (= celui du 1er jour), on avance d'un suspect par jour, en bouclant. Les 4 témoignages se déduisent des attributs du coupable du jour (phrases dans `temoignages`). Formule identique dans `build.py` (`coupable_du_jour`) et `template.html` (`coupableDuJour`) : les modifier ensemble.
+- L'écran de victoire n'est valable que `validite_ecran_minutes` (60 min, dans `contenu.json`) après la réussite : il affiche « À présenter avant HH h MM », puis passe tout seul en « Cet écran a expiré ». La victoire du jour est UNIQUE : une fois expirée, elle ne se refait pas avant le lendemain (sinon l'expiration serait contournable). L'heure vient du téléphone : le staff compare à l'heure réelle.
 - La réponse est vérifiée côté navigateur : c'est du brouillage, PAS de la sécurité.
   L'antifraude repose sur l'écran de victoire en direct (heure de Paris qui défile + mot du jour) vérifié par l'équipe.
 

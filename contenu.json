@@ -29,7 +29,10 @@
     "verrou_titre": "Il te manque des témoignages",
     "verrou": "Retrouve les témoins des postes {postes} : leurs indices sont indispensables pour désigner le coupable.",
     "verrou_secours": "J'ai déjà interrogé les témoins sur un autre téléphone",
-    "temoin_manquant": "Poste {n} : témoin pas encore interrogé"
+    "temoin_manquant": "Poste {n} : témoin pas encore interrogé",
+    "victoire_validite": "À présenter à l'accueil avant {heure} (valable {duree}).",
+    "expire_titre": "Cet écran a expiré",
+    "expire": "Il n'était valable que {duree}. Tu pourras refaire l'enquête demain, avec un nouveau coupable."
   },
   "suspects": {
     "zelie": {
@@ -387,5 +390,6 @@
       "non": "Pas de cape : il courait vite !"
     },
     "objet": "Il avait avec lui {objet}."
-  }
+  },
+  "validite_ecran_minutes": 60
 }

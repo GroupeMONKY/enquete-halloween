@@ -103,6 +103,9 @@ def valider(c):
     except (KeyError, ValueError):
         err.append("periode : 'debut' et 'fin' doivent être des dates AAAA-MM-JJ.")
 
+    v = c.get("validite_ecran_minutes", 60)
+    if not isinstance(v, int) or isinstance(v, bool) or not 5 <= v <= 24 * 60:
+        err.append("validite_ecran_minutes : un nombre entier de minutes entre 5 et 1440.")
     suspects = c["suspects"]
     for sid, s in suspects.items():
         manque = [t for t in ("nom",) + TRAITS if t not in s]
@@ -261,6 +264,7 @@ def construire_donnees(c, tk):
         "suspects": {k: {"nom": v["nom"]} for k, v in suspects.items()},
         "suspectsListe": list(suspects.keys()),
         "mots": mots, "parcs": {}, "tokens": {},
+        "validiteMinutes": c.get("validite_ecran_minutes", 60),
     }
     ids = list(suspects)
     for pid, p in c["parcs"].items():
@@ -427,6 +431,13 @@ def mot_du_jour(mots, debut, jour):
     return mots[(jour - debut).days % len(mots)]
 
 
+def duree_fr(minutes):
+    if minutes % 60 == 0:
+        h = minutes // 60
+        return f"{h} heure" + ("s" if h > 1 else "")
+    return f"{minutes} minutes"
+
+
 def ecrire_fiche(c, data, out, rendre_pdf):
     debut = datetime.date.fromisoformat(c["periode"]["debut"])
     fin = datetime.date.fromisoformat(c["periode"]["fin"])
@@ -475,7 +486,8 @@ def ecrire_fiche(c, data, out, rendre_pdf):
     <h2>Quand une famille se présente pour sa récompense</h2>
     <ol>
       <li>Elle vous montre l'écran de victoire <b>en direct</b> sur son téléphone, à {html.escape(' / '.join(lieu_reco))}.</li>
-      <li>Vérifiez que le <b>mot du jour</b> affiché correspond au tableau ci-dessous, et que l'heure défile (une capture d'écran ne défile pas).</li>
+      <li>Vérifiez que le <b>mot du jour</b> affiché correspond au tableau ci-dessous, et que l'heure défile et <b>correspond à l'heure réelle</b> (une capture d'écran ne défile pas).</li>
+      <li>Vérifiez la mention <b>« À présenter avant … h … »</b> : l'écran n'est valable que {html.escape(duree_fr(c.get('validite_ecran_minutes', 60)))}. Passé ce délai, il affiche « Cet écran a expiré » : ne créditez pas (sauf geste de votre part).</li>
       <li>Créditez {html.escape(c['recompense'])}. Une récompense par famille et par jour.</li>
     </ol>
     <div class="note">Si le mot ne correspond pas, ne créditez pas : dites simplement à la famille que l'écran n'est pas celui du jour et invitez-la à refaire l'enquête.</div>

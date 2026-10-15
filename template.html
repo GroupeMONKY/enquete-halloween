@@ -112,6 +112,9 @@ h2{font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
 
 .temoignage.verrouille{background:transparent;color:var(--doux);border:2px dashed rgba(255,255,255,.4);border-radius:14px;padding:14px 18px}
 .temoignage.verrouille .qui{margin-bottom:0}
+.validite{margin-top:12px;font-weight:800;color:var(--encre);background:#FFF4D1;border-radius:12px;padding:10px 12px}
+.carte.expire{border-top:8px solid var(--rouge)}
+.carte.expire p{margin-top:8px}
 .marque{display:block;width:120px;height:auto;margin:0 auto 12px}
 .bandeau{display:block;width:100%;height:auto;border-radius:22px;margin:0 0 16px;border:3px solid rgba(255,255,255,.18)}
 .decor{position:fixed;top:0;left:0;right:0;height:120px;pointer-events:none;z-index:0;overflow:hidden}
@@ -194,6 +197,10 @@ function noterVu(parcId, jour, poste){
   if(!l.ok) return;
   if(l.vus.indexOf(poste) < 0) l.vus.push(poste);
   try{ localStorage.setItem("enquete-vu-"+parcId, jour+"|"+l.vus.join(",")); }catch(e){}
+}
+function dureeLabel(m){ return m % 60 === 0 ? (m/60) + (m === 60 ? " heure" : " heures") : m + " minutes"; }
+function heureLimite(ms){
+  return new Intl.DateTimeFormat("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"}).format(new Date(ms)).replace(":", "\u00a0h\u00a0");
 }
 function dateLongue(dateStr){
   return new Intl.DateTimeFormat("fr-FR",{timeZone:"UTC",weekday:"long",day:"numeric",month:"long"}).format(new Date(dateStr + "T12:00:00Z"));
@@ -460,8 +467,9 @@ function ecranFinal(parcId){
   go.addEventListener("click", function(){
     if(!choix || verrou) return;
     if(choix === coupableDuJour(parcId, parisDate())){
-      try{ localStorage.setItem("enquete-gagne-"+parcId, parisDate()+"|"+choix); }catch(e){}
-      ecranVictoire(parcId, choix);
+      var debut = Date.now();
+      try{ localStorage.setItem("enquete-gagne-"+parcId, parisDate()+"|"+choix+"|"+debut); }catch(e){}
+      ecranVictoire(parcId, choix, debut);
       return;
     }
     erreur.textContent = typo(fmt(DATA.recits.mauvaise, v));
@@ -487,8 +495,19 @@ function ecranFinal(parcId){
   return frag;
 }
 
-function ecranVictoire(parcId, sid){
+function ecranExpire(parcId){
+  var duree = dureeLabel(DATA.validiteMinutes);
+  show(entete(DATA.parcs[parcId], 6).concat([
+    el("section",{"class":"carte expire"},[
+      el("h1",{text:DATA.recits.expire_titre}),
+      el("p",{text:fmt(DATA.recits.expire,{duree:duree})})
+    ])
+  ]));
+}
+function ecranVictoire(parcId, sid, debutMs){      // debutMs absent : ancienne mémoire, sans limite
   var parc = DATA.parcs[parcId], v = {m:DATA.mascotte};
+  var limite = debutMs ? debutMs + DATA.validiteMinutes * 60000 : 0;
+  if(limite && Date.now() >= limite){ ecranExpire(parcId); return; }
   var jour = parisDate();
   var coupable = DATA.suspects[sid];
   var nodes = [];
@@ -513,10 +532,14 @@ function ecranVictoire(parcId, sid){
     el("div",{"class":"le-mot",text:motDuJour(jour)}),
     heure
   ]));
+  if(limite) carte.appendChild(el("p",{"class":"validite",text:fmt(DATA.recits.victoire_validite,{heure:heureLimite(limite),duree:dureeLabel(DATA.validiteMinutes)})}));
   carte.appendChild(el("p",{"class":"avertissement",text:"Cet écran se montre en direct à l'équipe : une capture d'écran ne sera pas acceptée."}));
   nodes.push(carte);
   show(nodes);
-  setInterval(function(){ heure.textContent = heureParis(); }, 1000);
+  var tic = setInterval(function(){
+    if(limite && Date.now() >= limite){ clearInterval(tic); ecranExpire(parcId); return; }
+    heure.textContent = heureParis();
+  }, 1000);
 }
 
 /* ---------- Démarrage ---------- */
@@ -535,7 +558,7 @@ function demarrer(){
   try{ deja = localStorage.getItem("enquete-gagne-"+t.p); }catch(e){}
   if(t.s === 6 && deja){
     var morceaux = deja.split("|");
-    if(morceaux[0] === jour && DATA.suspects[morceaux[1]]){ ecranVictoire(t.p, morceaux[1]); return; }
+    if(morceaux[0] === jour && DATA.suspects[morceaux[1]]){ ecranVictoire(t.p, morceaux[1], Number(morceaux[2]) || 0); return; }
   }
   ecranEtape(t.p, t.s);
 }

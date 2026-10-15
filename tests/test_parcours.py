@@ -296,6 +296,43 @@ def main():
                 check(h1 != h2, f"mode réel {jour_reel:%d/%m} : l'heure défile ({h1} -> {h2})")
                 cx.close()
 
+            # ---- l'écran de victoire expire, et ne se refait pas le jour même
+            minutes = c.get("validite_ecran_minutes", 60)
+            cx, p4 = a_la_date(paris(2026, 10, 24, 15, 0), url0)
+            d24 = datetime.date(2026, 10, 24)
+            for s_ in range(1, 7):
+                p4.goto(f"{BASE}?e={tk['parcs'][pid0][s_ - 1]}")
+            nom_e = c["suspects"][build.coupable_du_jour(c, pid0, d24)]["nom"]
+            p4.get_by_role("button", name=re.compile(re.escape(nom_e), re.I)).click()
+            p4.get_by_role("button", name="Désigner le coupable").click()
+            txt = p4.inner_text("body")
+            limite = (datetime.datetime(2026, 10, 24, 15, 0) + datetime.timedelta(minutes=minutes)).strftime("%H h %M")
+            check(f"avant {limite}" in txt.replace("\u00a0", " "), f"victoire : « à présenter avant {limite} » (valable {minutes} min)")
+            p4.clock.fast_forward((minutes - 1) * 60 * 1000)
+            p4.wait_for_timeout(200)
+            check(typo(c["recits"]["victoire_titre"].replace("{m}", mascotte)) in p4.inner_text("body"), f"victoire : encore valable à {minutes - 1} min")
+            p4.clock.fast_forward(2 * 60 * 1000)
+            p4.wait_for_timeout(200)
+            txt = p4.inner_text("body")
+            check(typo(c["recits"]["expire_titre"]) in txt, f"victoire : l'écran expire seul après {minutes} min")
+            check(c["recompense"] not in txt and "Mot du jour" not in txt, "écran expiré : ni mot du jour ni récompense")
+            p4.reload()
+            check(typo(c["recits"]["expire_titre"]) in p4.inner_text("body"), "écran expiré : toujours expiré après rechargement")
+            p4.goto(f"{BASE}?e={tk['parcs'][pid0][5]}")
+            txt = p4.inner_text("body")
+            check(typo(c["recits"]["expire_titre"]) in txt and p4.get_by_role("button", name="Désigner le coupable").count() == 0,
+                  "poste 6 rouvert le même jour : pas de nouvelle victoire possible")
+            p4.clock.fast_forward(24 * 3600 * 1000)       # lendemain
+            d25 = datetime.date(2026, 10, 25)
+            for s_ in range(2, 6):
+                p4.goto(f"{BASE}?e={tk['parcs'][pid0][s_ - 1]}")
+            p4.goto(f"{BASE}?e={tk['parcs'][pid0][5]}")
+            nom_e2 = c["suspects"][build.coupable_du_jour(c, pid0, d25)]["nom"]
+            p4.get_by_role("button", name=re.compile(re.escape(nom_e2), re.I)).click()
+            p4.get_by_role("button", name="Désigner le coupable").click()
+            check(typo(c["recits"]["victoire_titre"].replace("{m}", mascotte)) in p4.inner_text("body"), "le lendemain : nouvelle enquête, nouvelle victoire possible")
+            cx.close()
+
             nav.close()
     finally:
         srv.shutdown()
